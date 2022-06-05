@@ -1,2 +1,1 @@
 # SemiParametricAssignments
-# SemiParametricAssignments

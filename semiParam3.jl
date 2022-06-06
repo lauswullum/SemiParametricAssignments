@@ -5,7 +5,8 @@ using Plots
 using StatsPlots
 using DataFramesMeta
 
-DF = CSV.read("/home/lauswullum/pCloudDrive/KU/ProjStat/exercise3/exercise3data.csv", DataFrame, header = [:ID, :Y, :R, :X], skipto = 2)
+root = dirname(dirname(@__FILE__))
+DF = CSV.read(root * "/exercise3data.csv", DataFrame, header = [:ID, :Y, :R, :X], skipto = 2)
 
 xWhereY1 = filter(row -> row.Y == 1, DF)
 xWhereY0 = filter(row -> row.Y == 0, DF)

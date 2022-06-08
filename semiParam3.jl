@@ -1,8 +1,10 @@
 using CSV
 using GLM
+using RCall
 using Plots
 using QuadGK
 using DataFrames
+using StatsFuns
 using StatsPlots
 using Distributions
 using BenchmarkTools
@@ -89,6 +91,8 @@ function effEst(R,Y,X)
     (βhat = βhatEff, ϕϕhat = estSD/sqrt(n))
 end
 
+#effEst(DF.R, DF.Y, DF.X)
+
 function effMisEst(R,Y,X)
     n = length(R)
     p0hat = sum((1 .- R) .* Y) / sum(1 .- R)
@@ -114,7 +118,7 @@ function qExp(X)
     [ones(Float64, size(X))  X  X.^2 X.^3]'
 end
 
-function polBasisEst(R,Y,X)
+function polEst(R,Y,X)
     n = length(R)
     p0hat = sum((1 .- R) .* Y) / sum(1 .- R)
     p1hat = sum(R .* Y) / sum(R)
@@ -126,18 +130,19 @@ function polBasisEst(R,Y,X)
     θ0hat1 =  inv(qExp(X) * qExp(X)')
     θ0hat2 = qExp(X) * ((R .- δhat) .* influenceVec)
     θhat0 = 1 / (δhat*(1 - δhat)) *  θ0hat1' * θ0hat2
-    ϕtilde = mean(influenceVec .- (θhat0' * qExp(X)) .* (R .- δhat))
-    #print(size(ϕtilde'))
-    #print(size(R .- δhat))
-    βtilde = βhat + ϕtilde
+    ϕtilde = influenceVec .- ((θhat0' * qExp(X))' .* (R .- δhat))
+    βtilde = βhat + mean(ϕtilde)
+    estSD = std(ϕtilde)
+    (βtilde = βtilde, ϕϕhat = estSD/sqrt(n))
 end
 
-R,Y,X = simData(400, 0)
-effMisEst(R,Y,X)
-#
-#density([first(naiveEst(simData(900, -log(9))...)) for i in 1:4000], label = "non-eff")
-#density!([first(effEst(simData(900, -log(9))...)) for i in 1:4000], label = "eff")
-#density!([polBasisEst(simData(900, -log(9))...) for i in 1:4000], label = "pol-eff")
+
+#R,Y,X = simData(200, 0)
+#polEst(R,Y,X)
+
+#histogram([first(naiveEst(simData(400, 0)...)) for i in 1:2000], label = "non-eff")
+#histogram!([first(effEst(simData(400, 0)...)) for i in 1:2000], label = "eff")
+#histogram!([polBasisEst(simData(400, 0))...) for i in 1:2000], label = "pol-eff")
 
 function logORMargTheo()
     α = -0.5
@@ -177,8 +182,10 @@ function computeTheoMargLogOr(γlist)
     saveTheoMargLogOr
 end
 
-#γlist = [0, -log(4), -log(6)]
-#computeTheoMargLogOr(γlist)
+function getMargTheo()
+    γlist = [0, -log(4), -log(6)]
+    computeTheoMargLogOr(γlist)
+end
 
 # compute one run of the simulation study
 function oneSimRun(n, γ, estimator)
@@ -239,24 +246,7 @@ function fromMatrixToDF(saveMeanβ, saveSDβ, saveMeanSDβ)
 end
 
 
-@time l1 = makeSimStudy(effEst)
-l2 = fromMatrixToDF(l1...)
-@subset(l2,:type .== "meanβ", :n .== 200)
-l2
 
-
-#root = dirname(dirname(@__FILE__))
-#DF = CSV.read(root * "/exercise3data.csv", DataFrame, header = [:ID, :Y, :R, :X], skipto = 2)
-#
-#xWhereY1 = filter(row -> row.Y == 1, DF)
-#xWhereY0 = filter(row -> row.Y == 0, DF)
-#
-#violin(["0"], xWhereY0.X, label = "no outcome")
-#violin!(["1"],xWhereY1.X, label = "outcome")
-#
-#
-#fitwith = glm(@formula(Y ~ R + X), DF, Binomial(), LogitLink())
-#fitwithout = glm(@formula(Y ~ R), DF, Binomial(), LogitLink())
 
 
 

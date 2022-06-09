@@ -198,7 +198,6 @@ function oneSimRun(n, γ, estimator)
     return (meanβ = mean(betaVec), sdβ = std(betaVec), meanSDβ = mean(betaSDVec))
 end
 
-
 #oneSimRun(200, 0, naiveEst)
 #oneSimRun(200, -log(4), effEst)
 

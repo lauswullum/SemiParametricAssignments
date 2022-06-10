@@ -1,3 +1,4 @@
+using RCall
 
 # R packages for generation of table using GT
 R"""

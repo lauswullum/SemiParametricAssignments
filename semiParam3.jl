@@ -1,7 +1,7 @@
 using CSV
 using GLM
 using RCall
-using Plots
+#using Plots
 using QuadGK
 using DataFrames
 using StatsFuns
@@ -243,7 +243,6 @@ function fromMatrixToDF(saveMeanβ, saveSDβ, saveMeanSDβ)
         )
     [df1 ; df2 ; df3]
 end
-
 
 
 

@@ -60,15 +60,15 @@ function naiveEst(R, Y, X)
     δhat = mean(R)
     influenceVec = [(1 - R[i])*(Y[i] - p0hat) * gprime0(p0hat) / (1 - δhat) + 
                     R[i] * (Y[i] - p1hat) * gprime1(p1hat) / δhat for i in 1:n]
-    estSD = std(influenceVec)
-    (βhat = βhat, ϕϕhat = estSD/sqrt(n))
+    estSD = mean(influenceVec .* influenceVec) |> sqrt
+    (βhat = βhat, ϕϕhat = estSD / sqrt(n))
 end
 
 #print("what \n")
-#R, Y = simData(1000, 0)
+#R, Y, X = simData(1000, 0)
 #std([first(naiveEst(simData(1000, 0)...)) for i in 1:5000])|> print
 #print("\n")
-#naiveEst(R, Y)[2] |> print
+#naiveEst(R, Y, X)[2] |> print
 
 function effEst(R,Y,X)
     n = length(R)
@@ -87,7 +87,7 @@ function effEst(R,Y,X)
         influenceVec[i] -= gprime1(p1hat) * (R[i] - δhat) * (pred1[i] - p1hat) / δhat
     end
     βhatEff = βhat + mean(influenceVec)
-    estSD = std(influenceVec)
+    estSD = mean(influenceVec .* influenceVec) |> sqrt
     (βhat = βhatEff, ϕϕhat = estSD/sqrt(n))
 end
 
@@ -110,8 +110,8 @@ function effMisEst(R,Y,X)
         influenceVec[i] -= gprime1(p1hat) * (R[i] - δhat) * (pred1[i] - p1hat) / δhat
     end
     βhatEff = βhat + mean(influenceVec)
-    estSD = std(influenceVec)
-    (βhat = βhatEff, ϕϕhat = estSD/sqrt(n))
+    estSD = mean(influenceVec .* influenceVec) |> sqrt
+    (βhat = βhatEff, ϕϕhat = estSD / sqrt(n))
 end
 
 function qExp(X)
@@ -133,6 +133,7 @@ function polEst(R,Y,X)
     ϕtilde = influenceVec .- ((θhat0' * qExp(X))' .* (R .- δhat))
     βtilde = βhat + mean(ϕtilde)
     estSD = std(ϕtilde)
+    estSD = mean(ϕtilde .* ϕtilde) |> sqrt
     (βtilde = βtilde, ϕϕhat = estSD/sqrt(n))
 end
 

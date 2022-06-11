@@ -1,4 +1,5 @@
 # R packages for generation of table
+using RCall
 R"""
 library(gt)
 library(magrittr)
@@ -54,7 +55,7 @@ tibble(fullDF) %>%
     ) %>%
     fmt_number(columns = 1:8, decimals = 3) %>%
     tab_stubhead(label = "γ") %>%
-    as_latex() 
+    as_latex() %>%
     as.character() %>%
     writeLines(., con = paste(root, "/latex_table.tex", sep = ""))
 """

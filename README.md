@@ -44,6 +44,4 @@ in latex format as well as printouts of the study.
 
 ## Remark
 These scripts run on Julia version 1.7.3.  
-No further work done to ensure, although it would be possible to save a complete
-file specifying version as well as package versions. 
-reproducibility. 
+No further work done to ensure reproducibility.  

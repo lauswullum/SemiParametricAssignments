@@ -35,12 +35,14 @@ confintHatEffLower, confintHatEffUpper = quantile.(Normal(βhatEff,seβhatEff), 
 confintPolLower, confintPolUpper =  quantile.(Normal(βtilde,seβtilde), [0.025, 0.975]) 
 
 
-DF = DataFrame(
-    type = ["GLM", "Efficient", "Polynomial"],
+DFest = DataFrame(
+    type = ["Naive", "Efficient", "Polynomial"],
     estimate = [coefGLM, βhatEff, βtilde], 
     lower = [confintGLMLower, confintHatEffLower,confintPolLower],
     upper = [confintGLMUpper, confintHatEffUpper,confintPolUpper]
 )
+#exp.(select(DFest, [:estimate, :lower, :upper]))
+
 
 #########################################################################
 # Produce tables to latex using GT in R
@@ -50,11 +52,11 @@ DF = DataFrame(
 root = dirname(@__FILE__)
 
 # Put the full dataframe and path to R using RCall.jl
-@rput DF
+@rput DFest
 @rput root
 
 R"""
-tibble(DF) |>
+tibble(DFest) |>
     gt() |>
     fmt_number(
         columns = 2:4,
@@ -66,3 +68,6 @@ tibble(DF) |>
     as.character() |>
     writeLines(con = paste(root, "/latex_table_est.tex", sep = ""))
 """
+
+# Print table
+pretty_table(DFest, formatters = ft_printf("%5.3f"), alignment = :c)

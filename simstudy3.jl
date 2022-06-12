@@ -8,19 +8,32 @@ library(tidyr)
 library(dplyr)
 library(reshape2)
 """
+
 include("semiParam3.jl")
 
 # Run simulationstudy and transform into longformat dataframe
-naiveStudy = makeSimStudy(naiveEst) |> x -> fromMatrixToDF(x...)
-effStudy = makeSimStudy(effEst) |> x -> fromMatrixToDF(x...)
-polStudy = makeSimStudy(polEst) |> x -> fromMatrixToDF(x...)
-misStudy = makeSimStudy(effMisEst) |> x -> fromMatrixToDF(x...)
+num = 20000
+naiveStudy = makeSimStudy(naiveEst, num) |> x -> fromMatrixToDF(x...)
+effStudy   = makeSimStudy(effEst, num) |> x -> fromMatrixToDF(x...)
+polStudy   = makeSimStudy(polEst, num) |> x -> fromMatrixToDF(x...)
+misStudy   = makeSimStudy(effMisEst, num) |> x -> fromMatrixToDF(x...)
+
+# Print table
+print("naive estimator\n")
+pretty_table(naiveStudy, formatters = ft_printf("%5.3f", 1), alignment = :c)
+print("efficient estimator\n")
+pretty_table(effStudy, formatters = ft_printf("%4.2f", 1), alignment = :c)
+print("polynomial estimator\n")
+pretty_table(polStudy, formatters = ft_printf("%5.3f", 1), alignment = :c)
+print("misspecified estimator\n")
+pretty_table(misStudy, formatters = ft_printf("%5.3f", 1), alignment = :c)
 
 # Add a column representing the estimator
 naiveStudy[!, :ex] .= "naive"
 effStudy[!, :ex] .= "efficient"
 polStudy[!, :ex] .= "polynomial"
 misStudy[!, :ex] .= "misspecified"
+
 
 # Stack the dataframes to a full dataframe 72x5
 fullDF = [naiveStudy; effStudy; polStudy; misStudy]
@@ -57,8 +70,6 @@ tibble(fullDF) %>%
     tab_stubhead(label = "γ") %>%
     as_latex() %>%
     as.character() %>%
-    writeLines(., con = paste(root, "/latex_table.tex", sep = ""))
+    writeLines(., con = paste(root, "/latexSimstudy.tex", sep = ""))
 """
-
-
 

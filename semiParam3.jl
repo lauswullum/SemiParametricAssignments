@@ -7,7 +7,7 @@ using DataFrames
 using StatsFuns
 using StatsPlots
 using Distributions
-using BenchmarkTools
+using PrettyTables
 using DataFramesMeta
 
 
@@ -189,10 +189,10 @@ function getMargTheo()
 end
 
 # compute one run of the simulation study
-function oneSimRun(n, γ, estimator)
-    betaVec = zeros(2000)
-    betaSDVec = zeros(2000)
-    @inbounds for i in 1:2000
+function oneSimRun(n, γ, estimator, num)
+    betaVec = zeros(num)
+    betaSDVec = zeros(num)
+    @inbounds for i in 1:num
         R, Y, X = simData(n, γ)
         betaVec[i], betaSDVec[i] = estimator(R,Y,X)
     end
@@ -202,7 +202,7 @@ end
 #oneSimRun(200, 0, naiveEst)
 #oneSimRun(200, -log(4), effEst)
 
-function makeSimStudy(estimator)
+function makeSimStudy(estimator, num)
     nlist = [200, 400]
     γlist = [0, -log(4), -log(6)]
     # γ x n matrix 
@@ -211,7 +211,7 @@ function makeSimStudy(estimator)
     saveMeanSDβ = Array{Float64}(undef, 3, 2)
     for i in eachindex(γlist)
         for j in eachindex(nlist)
-            a,b,c = [oneSimRun(nlist[j], γlist[i], estimator)...]
+            a,b,c = [oneSimRun(nlist[j], γlist[i], estimator, num)...]
             saveMeanβ[i,j]   = a
             saveSDβ[i,j]     = b
             saveMeanSDβ[i,j] = c

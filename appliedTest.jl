@@ -66,7 +66,7 @@ tibble(DFest) |>
     ) |>
     as_latex() |>
     as.character() |>
-    writeLines(con = paste(root, "/latex_table_est.tex", sep = ""))
+    writeLines(con = paste(root, "/latexApplied.tex", sep = ""))
 """
 
 # Print table

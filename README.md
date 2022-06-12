@@ -9,13 +9,13 @@ To run the experiments and applied study you run the following in your terminal
 julia appliedTest.jl
 ```
 This produces a latex file `latexApplied.tex` containing a table with results
-in latex format. 
+in latex format as well as printouts of the estimates and confidence intervals. 
 
 ```Julia
 julia simstudy3.jl
 ```
 This produces a latex file `latexSimstudy.tex` containing a table with results
-in latex format.
+in latex format as well as printouts of the study. 
 
 
 ## Required packages in Julia
@@ -41,3 +41,9 @@ in latex format.
 * tidyr  
 * dplyr  
 * reshape2  
+
+## Remark
+These scripts run on Julia version 1.7.3.  
+No further work done to ensure, although it would be possible to save a complete
+file specifying version as well as package versions. 
+reproducibility. 

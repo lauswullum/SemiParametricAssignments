@@ -18,15 +18,23 @@ effStudy   = makeSimStudy(effEst, num) |> x -> fromMatrixToDF(x...)
 polStudy   = makeSimStudy(polEst, num) |> x -> fromMatrixToDF(x...)
 misStudy   = makeSimStudy(effMisEst, num) |> x -> fromMatrixToDF(x...)
 
+function flotPrint(datenGiven)
+    daten = copy(datenGiven)
+    daten.nγ = string.(daten.n, "_", daten.γ)
+    select!(daten, [:ests, :type, :nγ])
+    daten = unstack(daten, :type, :nγ, :ests)
+    pretty_table(daten, formatters = ft_printf("%5.3f"), alignment = :c)
+end
+
 # Print table
 print("naive estimator\n")
-pretty_table(naiveStudy, formatters = ft_printf("%5.3f", 1), alignment = :c)
+flotPrint(naiveStudy)
 print("efficient estimator\n")
-pretty_table(effStudy, formatters = ft_printf("%4.2f", 1), alignment = :c)
+flotPrint(effStudy)
 print("polynomial estimator\n")
-pretty_table(polStudy, formatters = ft_printf("%5.3f", 1), alignment = :c)
+flotPrint(polStudy)
 print("misspecified estimator\n")
-pretty_table(misStudy, formatters = ft_printf("%5.3f", 1), alignment = :c)
+flotPrint(misStudy)
 
 # Add a column representing the estimator
 naiveStudy[!, :ex] .= "naive"
@@ -39,7 +47,10 @@ misStudy[!, :ex] .= "misspecified"
 fullDF = [naiveStudy; effStudy; polStudy; misStudy]
 
 # Compute the theoretical values of the marginal effects
-getMargTheo()
+print("\n \n")
+print("True marginal log odds ratio for the simulation study\n")
+print("γ = 0, γ = -log(4), γ = -log(6)\n")
+print(getMargTheo())
 
 #########################################################################
 # Make table in R using GT pakken. 

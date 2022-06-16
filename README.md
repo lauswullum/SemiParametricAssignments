@@ -25,8 +25,8 @@ in latex format as well as printouts of the study.
 * GLM  
 * Statistics  
 * Plots  
+* Term
 * StatsPlots  
-* Plots.PlotMeasures  
 * QuadGK  
 * NLsolve  
 * LaTeXStrings  

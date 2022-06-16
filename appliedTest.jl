@@ -23,24 +23,28 @@ DF = CSV.read(root * "/exercise3data.csv", DataFrame, header = [:ID, :Y, :R, :X]
 #########################################################################
 # Produce dataframe
 #########################################################################
-
+# Do a GLM fit of the naive estimator
 fitwithout = glm(@formula(Y ~ R), DF, Binomial(), LogitLink())
 coefGLM = coef(fitwithout)[2]
 confintGLMLower, confintGLMUpper = confint(fitwithout)[2, :]
 
+# Compute the efficient estimate
 βhatEff, seβhatEff = effEst(DF.R, DF.Y, DF.X)
 confintHatEffLower, confintHatEffUpper = quantile.(Normal(βhatEff,seβhatEff), [0.025, 0.975])
 
+# Compute the polynomial estimator
 βtilde, seβtilde =  polEst(DF.R, DF.Y, DF.X)
 confintPolLower, confintPolUpper =  quantile.(Normal(βtilde,seβtilde), [0.025, 0.975]) 
 
-
+# Collect estimates into dataframe
 DFest = DataFrame(
     type = ["Naive", "Efficient", "Polynomial"],
     estimate = [coefGLM, βhatEff, βtilde], 
     lower = [confintGLMLower, confintHatEffLower,confintPolLower],
     upper = [confintGLMUpper, confintHatEffUpper,confintPolUpper]
 )
+
+# get odds ratios
 #exp.(select(DFest, [:estimate, :lower, :upper]))
 
 
@@ -55,6 +59,7 @@ root = dirname(@__FILE__)
 @rput DFest
 @rput root
 
+# Output the latex file with table code
 R"""
 tibble(DFest) |>
     gt() |>

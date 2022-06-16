@@ -6,9 +6,8 @@ using StatsPlots
 using Plots.PlotMeasures
 using NLsolve
 using LaTeXStrings
-using BenchmarkTools
 using ForwardDiff
-using LoopVectorization
+
 #
 # ██████ ██ ███    ███ ██    ██ ██       █████  ████████ ██  ██████  ███    ██ 
 # █      ██ ████  ████ ██    ██ ██      ██   ██    ██    ██ ██    ██ ████   ██ 

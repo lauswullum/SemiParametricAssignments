@@ -1,7 +1,7 @@
 using CSV
 using GLM
 using RCall
-#using Plots
+using Term
 using QuadGK
 using DataFrames
 using StatsFuns
@@ -21,7 +21,6 @@ function expit(x)
     1 / (1 + exp(-x))
 end
 
-# Variance of mean - almost second derivative
 # Used in sandwich estimation
 function expit2(x)
     exp(x) / (1 + exp(x))^2
@@ -64,12 +63,7 @@ function naiveEst(R, Y, X)
     (βhat = βhat, ϕϕhat = estSD / sqrt(n))
 end
 
-#print("what \n")
-#R, Y, X = simData(1000, 0)
-#std([first(naiveEst(simData(1000, 0)...)) for i in 1:5000])|> print
-#print("\n")
-#naiveEst(R, Y, X)[2] |> print
-
+# The efficient estimator
 function effEst(R,Y,X)
     n = length(R)
     p0hat = sum((1 .- R) .* Y) / sum(1 .- R)
@@ -91,8 +85,7 @@ function effEst(R,Y,X)
     (βhat = βhatEff, ϕϕhat = estSD/sqrt(n))
 end
 
-#effEst(DF.R, DF.Y, DF.X)
-
+# Efficient estimator with misspecified means
 function effMisEst(R,Y,X)
     n = length(R)
     p0hat = sum((1 .- R) .* Y) / sum(1 .- R)
@@ -114,10 +107,12 @@ function effMisEst(R,Y,X)
     (βhat = βhatEff, ϕϕhat = estSD / sqrt(n))
 end
 
+# Polynomial expansion
 function qExp(X)
     [ones(Float64, size(X))  X  X.^2 X.^3]'
 end
 
+# Polynomial estimator
 function polEst(R,Y,X)
     n = length(R)
     p0hat = sum((1 .- R) .* Y) / sum(1 .- R)
@@ -137,14 +132,7 @@ function polEst(R,Y,X)
     (βtilde = βtilde, ϕϕhat = estSD/sqrt(n))
 end
 
-
-#R,Y,X = simData(200, 0)
-#polEst(R,Y,X)
-
-#histogram([first(naiveEst(simData(400, 0)...)) for i in 1:2000], label = "non-eff")
-#histogram!([first(effEst(simData(400, 0)...)) for i in 1:2000], label = "eff")
-#histogram!([polBasisEst(simData(400, 0))...) for i in 1:2000], label = "pol-eff")
-
+# Retrieve function, that compute
 function logORMargTheo()
     α = -0.5
     β = 0.3 
@@ -199,9 +187,7 @@ function oneSimRun(n, γ, estimator, num)
     return (meanβ = mean(betaVec), sdβ = std(betaVec), meanSDβ = mean(betaSDVec))
 end
 
-#oneSimRun(200, 0, naiveEst)
-#oneSimRun(200, -log(4), effEst)
-
+# Make the simulation study
 function makeSimStudy(estimator, num)
     nlist = [200, 400]
     γlist = [0, -log(4), -log(6)]
@@ -220,8 +206,9 @@ function makeSimStudy(estimator, num)
     return (saveMeanβ, saveSDβ, saveMeanSDβ)
 end
 
+# Helper function to get from simulation study to interpretable output.
 function fromMatrixToDF(saveMeanβ, saveSDβ, saveMeanSDβ)
-    estimate = ["meanβ", "sdβ", "meanSDβ"]
+    estimate = ["meanβ", "sdβ", "meanSEβ"]
     nlistNext = [200, 200, 200, 400, 400, 400]
     γlist = ["0", "-log(4)", "-log(6)"]
     df1 = DataFrame(

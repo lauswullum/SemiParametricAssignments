@@ -18,25 +18,26 @@ effStudy   = makeSimStudy(effEst, num) |> x -> fromMatrixToDF(x...)
 polStudy   = makeSimStudy(polEst, num) |> x -> fromMatrixToDF(x...)
 misStudy   = makeSimStudy(effMisEst, num) |> x -> fromMatrixToDF(x...)
 
+# A small function to do pretty printing. 
 function flotPrint(datenGiven)
     daten = copy(datenGiven)
-    daten.nγ = string.(daten.n, "_", daten.γ)
+    daten.nγ = string.("n=", daten.n, ",γ=", daten.γ)
     select!(daten, [:ests, :type, :nγ])
     daten = unstack(daten, :type, :nγ, :ests)
-    pretty_table(daten, formatters = ft_printf("%5.3f"), alignment = :c)
+    pretty_table(daten, formatters = ft_printf("%5.3f"), alignment = :c, nosubheader = true)
 end
 
-# Print table
-print("naive estimator\n")
+# Print tables of simulation study.
+print(Panel("naive estimator", width = 30))
 flotPrint(naiveStudy)
-print("efficient estimator\n")
+print(Panel("efficient estimator", width = 30))
 flotPrint(effStudy)
-print("polynomial estimator\n")
+print(Panel("polynomial estimator", width = 30))
 flotPrint(polStudy)
-print("misspecified estimator\n")
+print(Panel("misspecified estimator", width = 30))
 flotPrint(misStudy)
 
-# Add a column representing the estimator
+# Add a column representing the estimator type
 naiveStudy[!, :ex] .= "naive"
 effStudy[!, :ex] .= "efficient"
 polStudy[!, :ex] .= "polynomial"
@@ -63,7 +64,7 @@ root = dirname(@__FILE__)
 @rput fullDF
 @rput root
 
-# Make table and write a latexfile out. 
+# Make table and write a latexfile in the current directory. 
 R"""
 tibble(fullDF) %>% 
     unite("n,γ", n:γ) %>%
